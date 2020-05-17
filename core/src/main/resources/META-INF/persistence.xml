@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+          http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+        version="2.1">
+    <persistence-unit name="cbgPersistenceUnit" transaction-type="RESOURCE_LOCAL">
+        <!-- Persistence provider 
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        -->
+        <!-- Entity classes -->
+        <class>com.heytusar.cbg.core.models.Card</class>
+        <class>com.heytusar.cbg.core.models.CardAttribute</class>
+        <class>com.heytusar.cbg.core.models.User</class>
+        <class>com.heytusar.cbg.core.models.Player</class>
+        <class>com.heytusar.cbg.core.models.Role</class>
+        <class>com.heytusar.cbg.core.models.UserRole</class>
+        <properties>
+            <!-- The JDBC driver of your database -->
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+            <!-- The JDBC URL to the database instance -->
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/cbg" />
+            <!-- The database username -->
+            <property name="javax.persistence.jdbc.user" value="root" />
+            <!-- The database password -->
+            <property name="javax.persistence.jdbc.password" value="Password@123" />
+            <property name="hibernate.logging.level" value="INFO"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL57Dialect" />
+		   	<property name="hibernate.hbm2ddl.auto" value="update"/>
+		   	
+		   	<property name="hibernate.physical_naming_strategy" value="com.heytusar.cbg.core.utils.SnakeCasePhysicalNamingStrategy" />
+        </properties>
+    </persistence-unit>
+</persistence>

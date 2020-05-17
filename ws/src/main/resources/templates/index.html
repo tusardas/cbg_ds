@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<title>CBG Api</title>
+	</head>
+	<body>
+        <h3>
+        	CBG API
+        </h3>
+        <ul>
+        	<li th:each="task : ${tasks}" th:text="${task}"></li>
+        </ul>
+        
+        <span>
+        	<text th:utext="${copyrightInfo}" th:remove="tag"/>
+        </span>
+	</body>
+</html>

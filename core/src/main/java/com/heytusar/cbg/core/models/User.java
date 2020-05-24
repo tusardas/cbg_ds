@@ -32,15 +32,14 @@ public class User {
 	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)  
 	private List<UserRole> userRoles;
 	
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "player_id_FK", nullable = true)
-	private Player player;
+	@Column(name = "player_id", nullable = true)
+	private Long playerId;
 
-	public Player getPlayer() {
-		return player;
+	public Long getPlayerId() {
+		return playerId;
 	}
-	public void setPlayer(Player player) {
-		this.player = player;
+	public void setPlayerId(Long playerId) {
+		this.playerId = playerId;
 	}
 	public List<UserRole> getUserRoles() {
 		return userRoles;

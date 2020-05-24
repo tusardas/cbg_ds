@@ -21,6 +21,14 @@ public class Player {
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="user_id_FK", nullable = false)
 	private User user;
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public String getDisplayName() {
 		return displayName;

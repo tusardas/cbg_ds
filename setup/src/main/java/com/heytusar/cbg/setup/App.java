@@ -17,6 +17,7 @@ import javax.persistence.Persistence;
 
 import com.heytusar.cbg.core.models.Card;
 import com.heytusar.cbg.core.models.CardAttribute;
+import com.heytusar.cbg.core.models.Player;
 import com.heytusar.cbg.core.models.User;
 import com.heytusar.cbg.core.models.UserRole;
 import com.heytusar.cbg.core.models.Role;
@@ -59,8 +60,16 @@ public class App {
         publicRoles.add(publicRole);
         
         User admin = getExistingOrNewUser("admin@cbg.com", "click123", adminRoles);
+        Player adminPlayer = getExistingOrNewPlayer("admin", admin);
+        updateUserWithPlayer(admin, adminPlayer);
+        
         User player1 = getExistingOrNewUser("player1@cbg.com", "click123", publicRoles);
+        Player player1Obj = getExistingOrNewPlayer("player1", player1);
+        updateUserWithPlayer(player1, player1Obj);
+        
         User player2 = getExistingOrNewUser("player2@cbg.com", "click123", publicRoles);
+        Player player2Obj = getExistingOrNewPlayer("player2", player2);
+        updateUserWithPlayer(player2, player2Obj);
         
         List<User> adminUserList = readUsersByRole(adminRoleName);
         System.out.println("adminUserList ----> " + adminUserList);
@@ -73,7 +82,7 @@ public class App {
     public static List<Map<String, String>> readCsv() {
     	List<Map<String, String>> cardMaplist = new ArrayList<Map<String, String>>();
     	List<String> attributeList = new ArrayList<String>();
-        String csvFile = "D:\\eclipse_workspace\\cbg\\core\\src\\main\\resources\\Cards.csv";
+        String csvFile = "D:\\cbg_workspace\\cbg\\core\\src\\main\\resources\\Cards.csv";
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ",";
@@ -338,6 +347,75 @@ public class App {
     		em.close();
 		}
     	return user;
+    }
+    
+    /**
+     * This function inserts user or get existing from db
+     * @param displayName
+     * @param user
+     * @return Player
+     */
+    public static Player getExistingOrNewPlayer(String displayName, User user) {
+    	EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
+    	EntityTransaction et = null;
+    	Player player = null;
+    	try {
+    		et = em.getTransaction();
+    		et.begin();
+    		
+    		List<Player> players = em.createQuery(" SELECT p FROM Player p WHERE p.user.id = :userId ", Player.class)
+				.setParameter("userId", user.getId())
+				.getResultList();
+    		System.out.println("Existing players ---> " + players);
+    		if(players.size() > 0) {
+    			player = players.get(0);
+    		}
+    		else {
+    			player = new Player();
+    			player.setUser(user);
+    			player.setDisplayName(displayName);
+	    		
+	    		em.persist(player);
+    		}
+    		et.commit();
+    	}
+    	catch (Exception e) {
+			if(et != null) {
+				et.rollback();
+			}
+			e.printStackTrace();
+		}
+    	finally {
+    		em.close();
+		}
+    	return player;
+    }
+    
+    /**
+     * This function inserts user or get existing from db
+     * @param displayName
+     * @param user
+     * @return Player
+     */
+    public static void updateUserWithPlayer(User user, Player player) {
+    	EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
+    	EntityTransaction et = null;
+    	try {
+    		et = em.getTransaction();
+    		et.begin();
+    		user.setPlayerId(player.getId());
+    		em.merge(user);
+    		et.commit();
+    	}
+    	catch (Exception e) {
+			if(et != null) {
+				et.rollback();
+			}
+			e.printStackTrace();
+		}
+    	finally {
+    		em.close();
+		}
     }
     
     /**

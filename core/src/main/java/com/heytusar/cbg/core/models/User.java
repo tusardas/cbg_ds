@@ -13,6 +13,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 public class User {
 	@Id
@@ -29,7 +32,8 @@ public class User {
 	@Column(nullable = false)
 	private String password;
 	
-	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)  
+	@JsonIgnore
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)
 	private List<UserRole> userRoles;
 	
 	@Column(name = "player_id", nullable = true)

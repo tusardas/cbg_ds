@@ -62,6 +62,9 @@ public class JpaConfig {
 	@Value("${spring.jpa.properties.hibernate.hbm2ddl.auto}")
 	private String auto;
 	
+	@Value("${spring.jpa.properties.hibernate.physical_naming_strategy}")
+	private String physical_naming_strategy;
+	
 	public String getDriverClass() {
 		return driverClass;
 	}
@@ -165,6 +168,14 @@ public class JpaConfig {
 	public void setAuto(String auto) {
 		this.auto = auto;
 	}
+	
+	public String getPhysical_naming_strategy() {
+		return physical_naming_strategy;
+	}
+
+	public void setPhysical_naming_strategy(String physical_naming_strategy) {
+		this.physical_naming_strategy = physical_naming_strategy;
+	}
 
 	@Bean
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
@@ -219,6 +230,7 @@ public class JpaConfig {
 	    properties.setProperty("hibernate.dialect", dialect);
 	    properties.setProperty("hibernate.id.new_generator_mapping", new_generator_mapping);
 	    properties.setProperty("hibernate.format_sql", format_sql);
+	    properties.setProperty("hibernate.physical_naming_strategy", physical_naming_strategy); 
 	    return properties;
 	}
 	

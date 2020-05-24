@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import com.heytusar.cbg.core.models.User;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.heytusar.cbg.core.models.Role;
 
 @Entity
@@ -18,9 +19,8 @@ public class UserRole {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id_FK", nullable = false)
-	private User user;
+	@Column(name = "user_id", nullable = false)
+	private Long userId;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "role_id_FK", nullable = false)
@@ -30,12 +30,12 @@ public class UserRole {
 		return id;
 	}
 
-	public User getUser() {
-		return user;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	public Role getRole() {

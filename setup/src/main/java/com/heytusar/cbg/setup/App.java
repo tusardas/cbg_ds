@@ -59,17 +59,20 @@ public class App {
         List<Role> publicRoles = new ArrayList<Role>();
         publicRoles.add(publicRole);
         
-        User admin = getExistingOrNewUser("admin@cbg.com", "click123", adminRoles);
+        User admin = getExistingOrNewUser("admin@cbg.com", "click123");
         Player adminPlayer = getExistingOrNewPlayer("admin", admin);
         updateUserWithPlayer(admin, adminPlayer);
+        updateUserWithRoles(admin, adminRoles);
         
-        User player1 = getExistingOrNewUser("player1@cbg.com", "click123", publicRoles);
+        User player1 = getExistingOrNewUser("player1@cbg.com", "click123");
         Player player1Obj = getExistingOrNewPlayer("player1", player1);
         updateUserWithPlayer(player1, player1Obj);
+        updateUserWithRoles(player1, publicRoles);
         
-        User player2 = getExistingOrNewUser("player2@cbg.com", "click123", publicRoles);
+        User player2 = getExistingOrNewUser("player2@cbg.com", "click123");
         Player player2Obj = getExistingOrNewPlayer("player2", player2);
         updateUserWithPlayer(player2, player2Obj);
+        updateUserWithRoles(player2, publicRoles);
         
         List<User> adminUserList = readUsersByRole(adminRoleName);
         System.out.println("adminUserList ----> " + adminUserList);
@@ -79,7 +82,7 @@ public class App {
         
     }
     
-    public static List<Map<String, String>> readCsv() {
+	public static List<Map<String, String>> readCsv() {
     	List<Map<String, String>> cardMaplist = new ArrayList<Map<String, String>>();
     	List<String> attributeList = new ArrayList<String>();
         String csvFile = "D:\\cbg_workspace\\cbg\\core\\src\\main\\resources\\Cards.csv";
@@ -299,10 +302,9 @@ public class App {
      * This function inserts user or get existing from db
      * @param email
      * @param password
-     * @param roles
      * @return User
      */
-    public static User getExistingOrNewUser(String email, String password, List<Role> roles) {
+    public static User getExistingOrNewUser(String email, String password) {
     	EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
     	EntityTransaction et = null;
     	User user = null;
@@ -319,20 +321,9 @@ public class App {
     			user = users.get(0);
     		}
     		else {
-    			System.out.println("roles ---> " + roles);
 	    		user = new User();
 	    		user.setEmail(email);
 	    		user.setPassword(password);
-	    		
-	    		List<UserRole> userRoles = new ArrayList<UserRole>();
-	    		UserRole userRole;
-	    		for(Role role : roles) {
-	    			userRole = new UserRole();
-	    			userRole.setUser(user);
-    				userRole.setRole(role);
-	    			userRoles.add(userRole);
-	    		}
-	    		user.setUserRoles(userRoles);
 	    		em.persist(user);
     		}
     		et.commit();
@@ -348,6 +339,49 @@ public class App {
 		}
     	return user;
     }
+    
+    /**
+     * This function inserts UserRole or get existing from db for given User
+     * @param user
+     * @param roles
+     */
+    public static void updateUserWithRoles(User user, List<Role> roles) {
+    	EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
+    	EntityTransaction et = null;
+    	try {
+    		et = em.getTransaction();
+    		et.begin();
+    		List<UserRole> userRoles = new ArrayList<UserRole>();
+    		UserRole userRole;
+    		for(Role role:roles) {
+    			List<UserRole> existingUserRoles = em.createQuery(" SELECT ur FROM UserRole ur WHERE ur.userId = :userId AND ur.role = :role ", UserRole.class)
+					.setParameter("userId", user.getId()) 
+					.setParameter("role", role) 
+					.getResultList();
+    			System.out.println("existingUserRoles ---> " + existingUserRoles);
+    			if(existingUserRoles.size() == 0) {
+    				userRole = new UserRole();
+	    			userRole.setUserId(user.getId());
+    				userRole.setRole(role);
+	    			userRoles.add(userRole);
+    			}
+    		}
+    		if(userRoles.size() > 0) {
+    			user.setUserRoles(userRoles);
+    			em.merge(user);
+    			et.commit();
+    		}
+    	}
+    	catch (Exception e) {
+			if(et != null) {
+				et.rollback();
+			}
+			e.printStackTrace();
+		}
+    	finally {
+    		em.close();
+		}
+	}
     
     /**
      * This function inserts user or get existing from db

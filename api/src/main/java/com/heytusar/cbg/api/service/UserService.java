@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.heytusar.cbg.api.controller.UserController;
 import com.heytusar.cbg.api.persistence.UserRepository;
 import com.heytusar.cbg.core.models.User;
 

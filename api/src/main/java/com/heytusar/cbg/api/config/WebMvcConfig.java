@@ -21,6 +21,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Override
     public void addInterceptors(InterceptorRegistry registry) {
 		AuthInterceptor authInterceptor = appContext.getBean(AuthInterceptor.class);
-        registry.addInterceptor(authInterceptor).addPathPatterns("/user*");;
+        registry.addInterceptor(authInterceptor)
+        	.addPathPatterns(
+    			"/user*", 
+    			"/game/*"
+			);
     }
 }

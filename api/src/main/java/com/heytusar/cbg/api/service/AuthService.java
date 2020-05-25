@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.heytusar.cbg.api.persistence.UserRepository;
 import com.heytusar.cbg.api.persistence.UserSessionRepository;
+import com.heytusar.cbg.core.models.Player;
 import com.heytusar.cbg.core.models.User;
 import com.heytusar.cbg.core.models.UserSession;
 
@@ -24,6 +25,9 @@ public class AuthService {
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private PlayerService playerService;
 	
 	@Autowired
 	private SessionService sessionService;
@@ -38,7 +42,9 @@ public class AuthService {
 		log.info("user -----> " + user);
 		if(user != null) {
 			UserSession userSession = sessionService.getSession(user.getId());
+			Player player = playerService.getPlayerByUser(user);
 			result.put("sessionId", userSession.getSessionId());
+			result.put("playerId", player.getId());
 			result.put("status", "ok");
 		}
 		else {

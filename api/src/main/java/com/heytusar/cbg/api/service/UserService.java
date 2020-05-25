@@ -20,6 +20,10 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepository;
 	
+	public User getUser(Long userId) {
+		return userRepository.findById(userId).orElse(null);
+	}
+	
 	public List<User> getUsers() {
 		List<User> userList = new ArrayList<User>();
 		Iterable<User> iusers = userRepository.findAll();

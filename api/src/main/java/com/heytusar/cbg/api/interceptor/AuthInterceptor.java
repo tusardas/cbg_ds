@@ -31,6 +31,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 	
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse  response,  Object handler) throws IOException, ResponseStatusException {
+    	/*
     	String jsonString = request.getReader().lines().collect(Collectors.joining());
     	log.info("jsonString ---> " + jsonString);
     	Boolean result = false;
@@ -49,5 +50,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 			);
     	}
     	return result;
+    	*/
+		return true;
     }
 }

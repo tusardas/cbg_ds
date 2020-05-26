@@ -36,7 +36,29 @@ public class Game {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
-	
+
+	public GameSettings getGameSettings() {
+		return gameSettings;
+	}
+
+	public void setGameSettings(GameSettings gameSettings) {
+		this.gameSettings = gameSettings;
+	}
+
+	public GameState getGameState() {
+		return gameState;
+	}
+
+	public void setGameState(GameState gameState) {
+		this.gameState = gameState;
+	}
+
+	public List<GamePlayer> getGamePlayers() {
+		return gamePlayers;
+	}
+
+	public void setGamePlayers(List<GamePlayer> gamePlayers) {
+		this.gamePlayers = gamePlayers;
+	}
 	
 }

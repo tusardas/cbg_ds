@@ -36,35 +36,42 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 	
 	@Override
 	public Game saveNewGame(Long playerId) {
-		Game game = null;
-		EntityTransaction et = null;
-		try {
-			et = entityManager.getTransaction();
-			et.begin();
-			
-			GamePlayer gamePlayer = new GamePlayer();
-			gamePlayer.setPlayerId(playerId);
-			List<GamePlayer> gamePlayers = new ArrayList<GamePlayer>();
-			gamePlayers.add(gamePlayer);
-			
-			GameSettings gameSettings = new GameSettings();
-			gameSettings.setNumberOfPlayers(1);
-			gameSettings.setCricketFormat("odi");
-			gameSettings.setGameMode(1);
-			gameSettings.setCardsPerPlayer(30);
-			
-			GameState gameState = new GameState();
-			gameState.setGameStatus(1);
-			gameState.setNextPlayerId(playerId);
-			gameState.setServerPlayerId(playerId);
-			
-			et.commit();
-		}
-		catch (Exception e) {
-			if(et != null) {
-				et.rollback();
-			}
-			throw e;
+		
+		GamePlayer gamePlayer = new GamePlayer();
+		gamePlayer.setPlayerId(playerId);
+		List<GamePlayer> gamePlayers = new ArrayList<GamePlayer>();
+		gamePlayers.add(gamePlayer);
+		
+		GameSettings gameSettings = new GameSettings();
+		gameSettings.setNumberOfPlayers(1);
+		gameSettings.setCricketFormat("odi");
+		gameSettings.setGameMode(1);
+		gameSettings.setCardsPerPlayer(30);
+		
+		GameState gameState = new GameState();
+		gameState.setGameStatus(1);
+		gameState.setNextPlayerId(playerId);
+		gameState.setServerPlayerId(playerId);
+		
+		Game game = new Game();
+		game.setGameSettings(gameSettings);
+		game.setGameState(gameState);
+		game.setGamePlayers(gamePlayers);
+		
+		
+		
+		entityManager.persist(gameSettings);
+		entityManager.persist(gameState);
+		entityManager.persist(game);
+		
+		gameSettings.setGameId(game.getId());
+		entityManager.merge(gameSettings);
+		gameState.setGameId(game.getId());
+		entityManager.merge(gameState);
+		
+		for(GamePlayer gamePlayer2 : gamePlayers) {
+			gamePlayer2.setGameId(game.getId());
+			entityManager.merge(gamePlayer2);
 		}
 		return game;
 	}

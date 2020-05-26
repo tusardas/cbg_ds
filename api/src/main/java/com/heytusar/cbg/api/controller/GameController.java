@@ -26,8 +26,7 @@ public class GameController {
 	
 	@RequestMapping(value="/game/{playerId}", method = RequestMethod.GET)
 	public ResponseEntity<Game> getGame(
-		@PathVariable Long playerId, 
-		@RequestBody Map<?, ?> payload 
+		@PathVariable Long playerId 
 	) throws Exception {
 		Game game = gameService.getGame(playerId);
 		log.info("game ----> " + game);
@@ -36,8 +35,7 @@ public class GameController {
 	
 	@RequestMapping(value="/game/{playerId}", method = RequestMethod.POST)
 	public ResponseEntity<Game> saveNewGame(
-		@PathVariable Long playerId, 
-		@RequestBody Map<?, ?> payload 
+		@PathVariable Long playerId
 	) {
 		Game game = gameService.saveNewGame(playerId);
 		log.info("game ----> " + game);

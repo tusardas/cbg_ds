@@ -1,8 +1,0 @@
-com\heytusar\cbg\core\models\Player.class
-com\heytusar\cbg\core\models\Role.class
-com\heytusar\cbg\core\App.class
-com\heytusar\cbg\core\models\Card.class
-com\heytusar\cbg\core\models\CardAttribute.class
-com\heytusar\cbg\core\models\UserRole.class
-com\heytusar\cbg\core\utils\SnakeCasePhysicalNamingStrategy.class
-com\heytusar\cbg\core\models\User.class

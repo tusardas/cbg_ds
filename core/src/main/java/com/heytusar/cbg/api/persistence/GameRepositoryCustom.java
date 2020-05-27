@@ -4,5 +4,5 @@ import com.heytusar.cbg.core.models.Game;
 
 public interface GameRepositoryCustom {
 	Game getIncompleteGameByPlayer(Long playerId) throws Exception;
-	Game saveNewGame(Long playerId);
+	Game saveNewGame(Game game);
 }

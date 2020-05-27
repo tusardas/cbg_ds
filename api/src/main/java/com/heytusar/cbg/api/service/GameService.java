@@ -1,5 +1,8 @@
 package com.heytusar.cbg.api.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
@@ -12,6 +15,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.heytusar.cbg.api.persistence.GameRepository;
 import com.heytusar.cbg.core.models.Game;
+import com.heytusar.cbg.core.models.GamePlayer;
+import com.heytusar.cbg.core.models.GameSettings;
+import com.heytusar.cbg.core.models.GameState;
 import com.heytusar.cbg.core.models.Player;
 
 @Service
@@ -39,9 +45,29 @@ public class GameService {
 	}
 
 	public Game saveNewGame(Long playerId) {
-		Player player = appContext.getBean(PlayerService.class).getPlayerById(playerId);
-		Game game = gameRepository.saveNewGame(player.getId());
+		GamePlayer gamePlayer = new GamePlayer();
+		gamePlayer.setPlayerId(playerId);
+		List<GamePlayer> gamePlayers = new ArrayList<GamePlayer>();
+		gamePlayers.add(gamePlayer);
+		
+		GameSettings gameSettings = new GameSettings();
+		gameSettings.setNumberOfPlayers(1);
+		gameSettings.setCricketFormat("odi");
+		gameSettings.setGameMode(1);
+		gameSettings.setCardsPerPlayer(30);
+		
+		GameState gameState = new GameState();
+		gameState.setGameStatus(1);
+		gameState.setNextPlayerId(playerId);
+		gameState.setServerPlayerId(playerId);
+		
+		Game game = new Game();
+		game.setGameSettings(gameSettings);
+		game.setGameState(gameState);
+		game.setGamePlayers(gamePlayers);
+		
+		game = gameRepository.saveNewGame(game);
 		return game;
 	}
-
+	
 }

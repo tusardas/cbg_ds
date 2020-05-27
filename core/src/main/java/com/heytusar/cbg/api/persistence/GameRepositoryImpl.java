@@ -3,11 +3,9 @@ package com.heytusar.cbg.api.persistence;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
@@ -35,30 +33,11 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 	private DataSource dataSource;
 	
 	@Override
-	public Game saveNewGame(Long playerId) {
+	public Game saveNewGame(Game game) {
 		
-		GamePlayer gamePlayer = new GamePlayer();
-		gamePlayer.setPlayerId(playerId);
-		List<GamePlayer> gamePlayers = new ArrayList<GamePlayer>();
-		gamePlayers.add(gamePlayer);
-		
-		GameSettings gameSettings = new GameSettings();
-		gameSettings.setNumberOfPlayers(1);
-		gameSettings.setCricketFormat("odi");
-		gameSettings.setGameMode(1);
-		gameSettings.setCardsPerPlayer(30);
-		
-		GameState gameState = new GameState();
-		gameState.setGameStatus(1);
-		gameState.setNextPlayerId(playerId);
-		gameState.setServerPlayerId(playerId);
-		
-		Game game = new Game();
-		game.setGameSettings(gameSettings);
-		game.setGameState(gameState);
-		game.setGamePlayers(gamePlayers);
-		
-		
+		List<GamePlayer> gamePlayers = game.getGamePlayers();
+		GameSettings gameSettings = game.getGameSettings();
+		GameState gameState = game.getGameState();
 		
 		entityManager.persist(gameSettings);
 		entityManager.persist(gameState);

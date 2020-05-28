@@ -11,7 +11,7 @@ public class GameState {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private Integer gameStatus; // 1 = in progress, 2 = paused, 3 = finished
+	private Integer gameStatus; // 1 = in progress, 2 = paused, 3 = finished, see GameStatusEnum.java
 	private Long nextPlayerId;
 	private Long serverPlayerId;
     

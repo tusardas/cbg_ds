@@ -20,6 +20,7 @@ import com.heytusar.cbg.core.models.CardAttribute;
 import com.heytusar.cbg.core.models.Player;
 import com.heytusar.cbg.core.models.User;
 import com.heytusar.cbg.core.models.UserRole;
+import com.heytusar.cbg.core.utils.RoleEnum;
 import com.heytusar.cbg.core.models.Role;
 
 /**
@@ -47,8 +48,8 @@ public class App {
         	create(cardMap);
         }
         
-        String adminRoleName = "ADMIN";
-        String publicRoleName = "PUBLIC";
+        String adminRoleName = RoleEnum.ADMIN.toString();
+        String publicRoleName = RoleEnum.PUBLIC.toString();
         Role adminRole = getExistingOrNewRole(adminRoleName);
         Role publicRole = getExistingOrNewRole(publicRoleName);
         

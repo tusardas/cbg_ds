@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.heytusar.cbg.api.persistence.UserRepository;
+import com.heytusar.cbg.core.models.Role;
 import com.heytusar.cbg.core.models.User;
 
 @Service
@@ -22,6 +23,10 @@ public class UserService {
 	
 	public User getUser(Long userId) {
 		return userRepository.findById(userId).orElse(null);
+	}
+	
+	public User getUserByRole(Role role) {
+		return userRepository.findByRole(role);
 	}
 	
 	public List<User> getUsers() {

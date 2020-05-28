@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.heytusar.cbg.core.models.CardReserve;
 import com.heytusar.cbg.core.models.Game;
 import com.heytusar.cbg.core.models.GamePlayer;
 import com.heytusar.cbg.core.models.GameSettings;
@@ -43,13 +44,22 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 		entityManager.persist(gameState);
 		entityManager.persist(game);
 		
-		gameSettings.setGameId(game.getId());
+		Long gameId = game.getId();
+		
+		gameSettings.setGameId(gameId);
 		entityManager.merge(gameSettings);
-		gameState.setGameId(game.getId());
+		
+		gameState.setGameId(gameId);
 		entityManager.merge(gameState);
 		
+		List<CardReserve> cardReserveList;
 		for(GamePlayer gamePlayer2 : gamePlayers) {
-			gamePlayer2.setGameId(game.getId());
+			cardReserveList = gamePlayer2.getCardReserves();
+			for(CardReserve cardReserve : cardReserveList) {
+				cardReserve.setGameId(gameId);
+				entityManager.merge(cardReserve);
+			}
+			gamePlayer2.setGameId(gameId);
 			entityManager.merge(gamePlayer2);
 		}
 		return game;
@@ -61,7 +71,7 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 		StringBuilder query = new StringBuilder("");
 		query.append(" SELECT game.id AS gameId FROM game game ");
 		query.append(" INNER JOIN game_player gp ON gp.game_id = game.id ");
-		query.append(" WHERE gp.player_id = ? ");
+		query.append(" WHERE gp.player_id_FK = ? ");
 		PreparedStatement prepStmt = null;
 		Connection connection = null;
 		try {

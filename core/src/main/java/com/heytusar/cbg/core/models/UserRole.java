@@ -9,8 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.heytusar.cbg.core.models.User;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.heytusar.cbg.core.models.Role;
 
 @Entity

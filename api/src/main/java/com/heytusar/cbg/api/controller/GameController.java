@@ -37,7 +37,7 @@ public class GameController {
 	public ResponseEntity<Game> saveNewGame(
 		@PathVariable Long playerId
 	) {
-		Game game = gameService.saveNewGame(playerId);
+		Game game = gameService.saveNewGameTwoPlayerOdi(playerId);
 		log.info("game ----> " + game);
 		return new ResponseEntity<Game>(game, HttpStatus.OK);
 	}

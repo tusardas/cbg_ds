@@ -16,6 +16,7 @@ public class PlayedCard {
 	private Long playerId;
 	private Long cardId;
     private String attributeKeyPlayed;
+    
 	public Long getId() {
 		return id;
 	}

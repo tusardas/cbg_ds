@@ -1,9 +1,12 @@
 package com.heytusar.cbg.core.models;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 @Entity
 public class CardReserve {
@@ -14,8 +17,11 @@ public class CardReserve {
 	
 	private Long gameId;
 	private Long playerId;
-	private Long cardId;
-	private Integer reserveType; //1=Useable, 2=Winning Reserve
+	private Integer reserveType; //1=Useable, 2=Winning Reserve, see ReserveType.java
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="card_id_FK", nullable = false)
+	private Card card;
 	
 	public Long getId() {
 		return id;
@@ -35,11 +41,11 @@ public class CardReserve {
 	public void setPlayerId(Long playerId) {
 		this.playerId = playerId;
 	}
-	public Long getCardId() {
-		return cardId;
+	public Card getCard() {
+		return card;
 	}
-	public void setCardId(Long cardId) {
-		this.cardId = cardId;
+	public void setCard(Card card) {
+		this.card = card;
 	}
 	public Integer getReserveType() {
 		return reserveType;

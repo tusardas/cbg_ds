@@ -23,4 +23,9 @@ public class PlayerService {
 		Player player = playerRepository.findByUser(user);
 		return player;
 	}
+	
+	Player getPlayerByRole(User user) {
+		Player player = playerRepository.findByUser(user);
+		return player;
+	}
 }

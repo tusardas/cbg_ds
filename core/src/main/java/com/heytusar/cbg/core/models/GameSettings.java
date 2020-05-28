@@ -11,9 +11,9 @@ public class GameSettings {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private Integer numberOfPlayers; // 1 = single-player, 2 = multiplayer
-    private String cricketFormat;//'test', 'odi', 't20'
-    private Integer gameMode; // 1 = easy, 2 = medium, 3 = hard
+	private Integer numberOfPlayers;
+    private String gameFormat;//'test', 'odi', 't20', see GameFormatEnum.java
+    private Integer difficultyLevel; // 1 = easy, 2 = medium, 3 = hard, see DifficultyLevelEnum.java
     private Integer cardsPerPlayer;
     private Long gameId;
     
@@ -29,17 +29,17 @@ public class GameSettings {
 	public void setNumberOfPlayers(Integer numberOfPlayers) {
 		this.numberOfPlayers = numberOfPlayers;
 	}
-	public String getCricketFormat() {
-		return cricketFormat;
+	public String getGameFormat() {
+		return gameFormat;
 	}
-	public void setCricketFormat(String cricketFormat) {
-		this.cricketFormat = cricketFormat;
+	public void setGameFormat(String gameFormat) {
+		this.gameFormat = gameFormat;
 	}
-	public Integer getGameMode() {
-		return gameMode;
+	public Integer getDifficultyLevel() {
+		return difficultyLevel;
 	}
-	public void setGameMode(Integer gameMode) {
-		this.gameMode = gameMode;
+	public void setDifficultyLevel(Integer difficultyLevel) {
+		this.difficultyLevel = difficultyLevel;
 	}
 	public Integer getCardsPerPlayer() {
 		return cardsPerPlayer;

@@ -23,12 +23,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/user",
+					"raw": "http://localhost:8888/user",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8888",
 					"path": [
 						"user"
 					]
@@ -37,7 +37,7 @@
 			"response": []
 		},
 		{
-			"name": "load game",
+			"name": "getGameByPlayer",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -54,14 +54,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/game/2",
+					"raw": "http://localhost:8888/getGameByPlayer/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8888",
 					"path": [
-						"game",
+						"getGameByPlayer",
 						"2"
 					]
 				}
@@ -69,7 +69,7 @@
 			"response": []
 		},
 		{
-			"name": "new game",
+			"name": "saveNewGame",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -83,14 +83,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/game/2",
+					"raw": "http://localhost:8080/saveNewGame/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"game",
+						"saveNewGame",
 						"2"
 					]
 				}
@@ -112,12 +112,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/validateAuth",
+					"raw": "http://localhost:8888/validateAuth",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8888",
 					"path": [
 						"validateAuth"
 					]

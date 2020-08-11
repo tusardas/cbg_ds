@@ -34,6 +34,8 @@ public class GamePlayer {
 	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)
 	private List<CardReserve> cardReserves;
 	
+	private Integer gamePlayerStatus; //1 = thinking, 2 = waiting, See GamePlayerStatusEnum.java
+	
 	public List<CardReserve> getCardReserves() {
 		return cardReserves;
 	}
@@ -90,5 +92,12 @@ public class GamePlayer {
 	public void setSerialNum(Integer serialNum) {
 		this.serialNum = serialNum;
 	}
-	
+
+	public Integer getGamePlayerStatus() {
+		return gamePlayerStatus;
+	}
+
+	public void setGamePlayerStatus(Integer gamePlayerStatus) {
+		this.gamePlayerStatus = gamePlayerStatus;
+	}
 }

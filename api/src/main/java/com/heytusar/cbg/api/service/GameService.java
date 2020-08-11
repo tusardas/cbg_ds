@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import com.heytusar.cbg.core.models.User;
 import com.heytusar.cbg.core.models.UserRole;
 import com.heytusar.cbg.core.utils.DifficultyLevelEnum;
 import com.heytusar.cbg.core.utils.GameFormatEnum;
+import com.heytusar.cbg.core.utils.GamePlayerStatusEnum;
 import com.heytusar.cbg.core.utils.GameStatusEnum;
 import com.heytusar.cbg.core.utils.ReserveTypeEnum;
 import com.heytusar.cbg.core.utils.RoleEnum;
@@ -48,7 +50,7 @@ public class GameService {
 		this.gameRepository = gameRepository;
 	}
 	
-	public Game getGame(Long playerId) throws Exception {
+	public Game getGameByPlayer(Long playerId) throws Exception {
 		Player player = appContext.getBean(PlayerService.class).getPlayerById(playerId);
 		Game game = gameRepository.getIncompleteGameByPlayer(player.getId());
 		if(game == null) {
@@ -61,7 +63,7 @@ public class GameService {
 
 	public Game saveNewGameTwoPlayerOdi(Long playerId) {
 		PlayerService playerService = appContext.getBean(PlayerService.class);
-		Player player = appContext.getBean(PlayerService.class).getPlayerById(playerId);
+		Player player = playerService.getPlayerById(playerId);
 		Role adminRole = appContext.getBean(RoleService.class).getRoleByName(RoleEnum.ADMIN.toString());
 		if(player
 			.getUser()
@@ -84,10 +86,12 @@ public class GameService {
 		GamePlayer gamePlayer = new GamePlayer();
 		gamePlayer.setPlayer(player);
 		gamePlayer.setSerialNum(1);
+		gamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.WAITING.getValue());
 		
 		GamePlayer adminGamePlayer = new GamePlayer();
 		adminGamePlayer.setPlayer(adminPlayer);
 		adminGamePlayer.setSerialNum(2);
+		adminGamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.WAITING.getValue());
 		
 		List<GamePlayer> gamePlayers = new ArrayList<GamePlayer>();
 		gamePlayers.add(gamePlayer);
@@ -143,5 +147,17 @@ public class GameService {
 	
 	public void randomizeCards(List<Card> cardList) {
 		Collections.shuffle(cardList, new Random()); 
+	}
+
+	public Game playTurn(Long playerId, JSONObject json) {
+		Player player = appContext.getBean(PlayerService.class).getPlayerById(playerId);
+		log.info("player ----> " + player);
+		
+		Long gameId = json.getLong("gameId");
+		
+		Game game = gameRepository.findById(gameId).orElse(null);
+		log.info("game ----> " + game);
+		
+		return game;
 	}
 }

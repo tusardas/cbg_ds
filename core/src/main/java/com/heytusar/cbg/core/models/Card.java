@@ -34,6 +34,15 @@ public class Card {
 		this.cardAttributes = cardAttributes;
 	}  
 	
+	public CardAttribute getCardAttribute(String key) {
+		for(CardAttribute ca : this.cardAttributes) {
+			if(ca.getAttributeKey().equals(key)) {
+				return ca;
+			}
+		}
+		return null;
+	}
+	
 	private Integer rank;
 	
 	private String shortTag;

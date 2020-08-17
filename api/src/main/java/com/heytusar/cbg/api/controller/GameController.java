@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +26,7 @@ public class GameController {
 	@Autowired
 	private GameService gameService;
 	
+	@CrossOrigin
 	@RequestMapping(value="/getGameByPlayer/{playerId}", method = RequestMethod.GET)
 	public ResponseEntity<Game> getGameByPlayer(
 		@PathVariable Long playerId 
@@ -34,6 +36,7 @@ public class GameController {
 		return new ResponseEntity<Game>(game, HttpStatus.OK);
 	}
 	
+	@CrossOrigin
 	@RequestMapping(value="/saveNewGame/{playerId}", method = RequestMethod.POST)
 	public ResponseEntity<Game> saveNewGame(
 		@PathVariable Long playerId
@@ -43,6 +46,7 @@ public class GameController {
 		return new ResponseEntity<Game>(game, HttpStatus.OK);
 	}
 	
+	@CrossOrigin
 	@RequestMapping(value="/turn/{playerId}", method = RequestMethod.POST)
 	public ResponseEntity<Game> playTurn(
 		@PathVariable Long playerId,

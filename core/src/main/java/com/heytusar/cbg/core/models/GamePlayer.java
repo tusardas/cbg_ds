@@ -30,7 +30,7 @@ public class GamePlayer {
 	
 	private Integer serialNum; //based on this number player will show his card
 	
-	@JsonIgnore
+	
 	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)
 	private List<CardReserve> cardReserves;
 	

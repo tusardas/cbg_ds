@@ -5,10 +5,13 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class ApiController {
+	
+	@CrossOrigin
 	@RequestMapping("/")
 	public String index(Model model) {
 		String copyrightInfo = "<strong>&copy; 2020</strong> All rights protected."; //apiService.getCopyrightInfo();

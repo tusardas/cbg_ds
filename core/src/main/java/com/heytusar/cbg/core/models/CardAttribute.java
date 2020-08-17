@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class CardAttribute {
 	@Id
@@ -38,6 +40,7 @@ public class CardAttribute {
 		this.attributeValue = attributeValue;
 	}
 	
+	@JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="card_id_FK", nullable=false)
     private Card card;

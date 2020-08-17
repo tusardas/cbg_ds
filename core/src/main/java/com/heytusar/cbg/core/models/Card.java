@@ -11,6 +11,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Card {
 	
@@ -21,7 +23,6 @@ public class Card {
 	public Long getId() {
 		return id;
 	}
-	
 	
 	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)  
 	private List<CardAttribute> cardAttributes;

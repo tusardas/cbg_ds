@@ -54,6 +54,7 @@ public class GameController {
         HttpServletResponse response
 	) {
 		JSONObject json = (JSONObject) request.getAttribute("jsonBody");
+		log.info("json in controller ---> " + json);
 		Game game = gameService.playTurn(playerId, json);
 		log.info("game ----> " + game);
 		return new ResponseEntity<Game>(game, HttpStatus.OK);

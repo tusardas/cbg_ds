@@ -152,9 +152,12 @@ public class GameService {
 	public Game playTurn(Long playerId, JSONObject json) {
 		Player player = appContext.getBean(PlayerService.class).getPlayerById(playerId);
 		log.info("player ----> " + player);
-		
-		Long gameId = json.getLong("gameId");
-		
+		log.info("json ----> " + json);
+		JSONObject cardReserveJson = json.getJSONObject("cardReserve");
+		JSONObject cardAttributeJson = json.getJSONObject("cardAttribute");
+		log.info("cardReserveJson ---> " +cardReserveJson.toString());
+		log.info("cardAttributeJson ---> " +cardAttributeJson.toString());
+		Long gameId = cardReserveJson.getLong("gameId");
 		Game game = gameRepository.findById(gameId).orElse(null);
 		log.info("game ----> " + game);
 		

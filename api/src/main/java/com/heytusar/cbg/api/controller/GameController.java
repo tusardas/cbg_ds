@@ -27,10 +27,11 @@ public class GameController {
 	private GameService gameService;
 	
 	@CrossOrigin
-	@RequestMapping(value="/getGameByPlayer/{playerId}", method = RequestMethod.GET)
+	@RequestMapping(value="/getGameByPlayer/{playerId}", method = RequestMethod.POST)
 	public ResponseEntity<Game> getGameByPlayer(
 		@PathVariable Long playerId 
 	) throws Exception {
+		log.info("here --------------------------------------->");
 		Game game = gameService.getGameByPlayer(playerId);
 		log.info("game ----> " + game);
 		return new ResponseEntity<Game>(game, HttpStatus.OK);

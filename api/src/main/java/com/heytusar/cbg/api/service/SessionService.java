@@ -5,10 +5,13 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.heytusar.cbg.api.persistence.UserSessionRepository;
 import com.heytusar.cbg.core.models.UserSession;
@@ -35,6 +38,21 @@ public class SessionService {
 		}
 		userSessionRepository.save(userSession);
 		return userSession;
+	}
+	
+	public Boolean validateAuth(JSONObject json) {
+		Boolean result = false;
+		String sessionId = (String) json.get("sessionId");
+    	log.info("sessionId ---> " + sessionId);
+    	if(sessionId.length() > 0) { 
+	    	result = validateSessionId(sessionId);
+    	}
+    	if(!result) {
+    		throw new ResponseStatusException(
+    				HttpStatus.FORBIDDEN, "Authentication failed"
+			);
+    	}
+    	return result;
 	}
 	
 	public Boolean validateSessionId(String sessionId) {

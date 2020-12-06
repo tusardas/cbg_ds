@@ -1,8 +1,5 @@
 package com.heytusar.cbg.api.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.heytusar.cbg.api.service.GameService;
+import com.heytusar.cbg.api.service.SessionService;
 import com.heytusar.cbg.core.models.Game;
 
 @Controller
@@ -26,22 +25,37 @@ public class GameController {
 	@Autowired
 	private GameService gameService;
 	
+	@Autowired
+	private SessionService sessionService;
+	
 	@CrossOrigin
 	@RequestMapping(value="/getGameByPlayer/{playerId}", method = RequestMethod.POST)
 	public ResponseEntity<Game> getGameByPlayer(
-		@PathVariable Long playerId 
+		@PathVariable Long playerId,
+		@RequestBody String jsonBody
 	) throws Exception {
-		log.info("here --------------------------------------->");
+		JSONObject json = new JSONObject(jsonBody);
+		log.info("json in controller ---> " + json);
+		Boolean authStatus = sessionService.validateAuth(json);
+		log.info("authStatus ----> " + authStatus);
 		Game game = gameService.getGameByPlayer(playerId);
 		log.info("game ----> " + game);
 		return new ResponseEntity<Game>(game, HttpStatus.OK);
+		
 	}
 	
 	@CrossOrigin
 	@RequestMapping(value="/saveNewGame/{playerId}", method = RequestMethod.POST)
 	public ResponseEntity<Game> saveNewGame(
-		@PathVariable Long playerId
+		@PathVariable Long playerId,
+		@RequestBody String jsonBody
 	) {
+		JSONObject json = new JSONObject(jsonBody);
+		log.info("json in controller ---> " + json);
+		
+		Boolean authStatus = sessionService.validateAuth(json);
+		log.info("authStatus ----> " + authStatus);
+		
 		Game game = gameService.saveNewGameTwoPlayerOdi(playerId);
 		log.info("game ----> " + game);
 		return new ResponseEntity<Game>(game, HttpStatus.OK);
@@ -51,11 +65,14 @@ public class GameController {
 	@RequestMapping(value="/turn/{playerId}", method = RequestMethod.POST)
 	public ResponseEntity<Game> playTurn(
 		@PathVariable Long playerId,
-		HttpServletRequest request, 
-        HttpServletResponse response
+		@RequestBody String jsonBody
 	) {
-		JSONObject json = (JSONObject) request.getAttribute("jsonBody");
+		JSONObject json = new JSONObject(jsonBody);
 		log.info("json in controller ---> " + json);
+		
+		Boolean authStatus = sessionService.validateAuth(json);
+		log.info("authStatus ----> " + authStatus);
+		
 		Game game = gameService.playTurn(playerId, json);
 		log.info("game ----> " + game);
 		return new ResponseEntity<Game>(game, HttpStatus.OK);

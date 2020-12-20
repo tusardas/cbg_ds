@@ -3,7 +3,9 @@ package com.heytusar.cbg.api.persistence;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -20,6 +22,8 @@ import com.heytusar.cbg.core.models.Game;
 import com.heytusar.cbg.core.models.GamePlayer;
 import com.heytusar.cbg.core.models.GameSettings;
 import com.heytusar.cbg.core.models.GameState;
+import com.heytusar.cbg.core.models.Player;
+import com.heytusar.cbg.core.models.Turn;
 
 @Repository
 @Transactional
@@ -34,7 +38,7 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 	private DataSource dataSource;
 	
 	@Override
-	public Game saveNewGame(Game game) {
+	public Map<String, Object> saveNewGame(Game game, Turn turn) {
 		
 		List<GamePlayer> gamePlayers = game.getGamePlayers();
 		GameSettings gameSettings = game.getGameSettings();
@@ -43,6 +47,7 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 		entityManager.persist(gameSettings);
 		entityManager.persist(gameState);
 		entityManager.persist(game);
+		entityManager.persist(turn);
 		
 		Long gameId = game.getId();
 		
@@ -62,7 +67,16 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 			gamePlayer2.setGameId(gameId);
 			entityManager.merge(gamePlayer2);
 		}
-		return game;
+		
+		
+		turn.setGameId(gameId);
+		entityManager.merge(turn);
+		
+		Map<String, Object> models = new HashMap<String, Object>();
+		models.put("game", game);
+		models.put("turn", turn);
+		
+		return models;
 	}
 	
 	public Game getIncompleteGameByPlayer(Long playerId) throws Exception {
@@ -99,6 +113,53 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 			connection.close();
 		}
 		return game;
+	}
+
+	@Override
+	public GamePlayer getGamePlayerByGameAndPlayer(Game game, Player player) throws Exception {
+		GamePlayer gamePlayer = null;
+		Long gamePlayerId = null;
+		StringBuilder query = new StringBuilder("");
+		query.append(" SELECT gp.id AS gamePlayerId FROM game_player gp ");
+		query.append(" WHERE gp.player_id_FK = ? ");
+		query.append(" AND gp.game_id = ? ");
+		PreparedStatement prepStmt = null;
+		Connection connection = null;
+		try {
+			connection = dataSource.getConnection();
+			prepStmt = connection.prepareStatement(query.toString());
+			prepStmt.setLong(1, player.getId());
+			prepStmt.setLong(2, game.getId());
+			
+			ResultSet rs = prepStmt.executeQuery();
+			while(rs.next()){
+				gamePlayerId = rs.getLong("gamePlayerId");
+			}
+			log.info("gamePlayerId ---> " + gamePlayerId);
+			if(gamePlayerId != null) {
+				List<GamePlayer> gamePlayers = entityManager.createQuery("SELECT gp FROM GamePlayer gp WHERE gp.id = :gameIdgamePlayerId", GamePlayer.class)
+						.setParameter("gameIdgamePlayerId", gamePlayerId)
+						.getResultList();
+				if(gamePlayers.size() > 0) {
+					gamePlayer = gamePlayers.get(0);
+				}
+			}
+		}
+		catch (Exception e) {
+			throw e;
+		}
+		finally {
+			connection.close();
+		}
+		return gamePlayer;
+	}
+	
+	@Override
+	public List<GamePlayer> getGamePlayersByGame(Game game) {
+		List<GamePlayer> gamePlayers = entityManager.createQuery("SELECT gp FROM GamePlayer gp WHERE gp.gameId = :gameId", GamePlayer.class)
+				.setParameter("gameId", game.getId())
+				.getResultList();
+		return gamePlayers;
 	}
 
 	/*

@@ -31,7 +31,8 @@ public class CardService {
 		Iterable<Card> iusers = cardRepository.findAll();
 		log.info("iusers -------->" + iusers);
 		iusers.forEach(cardList::add);
-		return cardList;
+		//return cardList;
+		return new ArrayList<Card>(cardList.subList(0, 8));
 	}
 	
 	

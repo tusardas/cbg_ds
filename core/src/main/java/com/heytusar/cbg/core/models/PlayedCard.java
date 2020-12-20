@@ -1,5 +1,6 @@
 package com.heytusar.cbg.core.models;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -7,16 +8,36 @@ import javax.persistence.Id;
 
 @Entity
 public class PlayedCard {
-
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	private Long gameId;
 	private Long playerId;
+	
+	@Column(nullable = true)
 	private Long cardId;
-    private String attributeKeyPlayed;
+	@Column(nullable = true)
+	private String attributeKeyPlayed;
+	
+    private Long turnId;
     
+    @Column(columnDefinition = "TINYINT", length = 1)
+	private Boolean isPlayed;
+    
+	public Boolean getIsPlayed() {
+		return isPlayed;
+	}
+	public void setIsPlayed(Boolean isPlayed) {
+		this.isPlayed = isPlayed;
+	}
+	public Long getTurnId() {
+		return turnId;
+	}
+	public void setTurnId(Long turnId) {
+		this.turnId = turnId;
+	}
 	public Long getId() {
 		return id;
 	}

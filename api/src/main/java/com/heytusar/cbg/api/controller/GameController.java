@@ -1,5 +1,7 @@
 package com.heytusar.cbg.api.controller;
 
+import java.util.Map;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,7 @@ public class GameController {
 	
 	@CrossOrigin
 	@RequestMapping(value="/getGameByPlayer/{playerId}", method = RequestMethod.POST)
-	public ResponseEntity<Game> getGameByPlayer(
+	public ResponseEntity<Map> getGameByPlayer(
 		@PathVariable Long playerId,
 		@RequestBody String jsonBody
 	) throws Exception {
@@ -38,44 +40,44 @@ public class GameController {
 		log.info("json in controller ---> " + json);
 		Boolean authStatus = sessionService.validateAuth(json);
 		log.info("authStatus ----> " + authStatus);
-		Game game = gameService.getGameByPlayer(playerId);
-		log.info("game ----> " + game);
-		return new ResponseEntity<Game>(game, HttpStatus.OK);
+		Map models = gameService.getGameByPlayer(playerId);
+		log.info("models ----> " + models);
+		return new ResponseEntity<Map>(models, HttpStatus.OK);
 		
 	}
 	
 	@CrossOrigin
 	@RequestMapping(value="/saveNewGame/{playerId}", method = RequestMethod.POST)
-	public ResponseEntity<Game> saveNewGame(
+	public ResponseEntity<Map> saveNewGame(
 		@PathVariable Long playerId,
 		@RequestBody String jsonBody
-	) {
+	) throws Exception {
 		JSONObject json = new JSONObject(jsonBody);
 		log.info("json in controller ---> " + json);
 		
 		Boolean authStatus = sessionService.validateAuth(json);
-		log.info("authStatus ----> " + authStatus);
+		log.info("authStatus --------------------------------------------> " + authStatus);
 		
-		Game game = gameService.saveNewGameTwoPlayerOdi(playerId);
-		log.info("game ----> " + game);
-		return new ResponseEntity<Game>(game, HttpStatus.OK);
+		Map models = gameService.saveNewGameTwoPlayerOdi(playerId);
+		log.info("models --------------------------------------------------> " + models);
+		return new ResponseEntity<Map>(models, HttpStatus.OK);
 	}
 	
 	@CrossOrigin
 	@RequestMapping(value="/turn/{playerId}", method = RequestMethod.POST)
-	public ResponseEntity<Game> playTurn(
+	public ResponseEntity<Map> playTurn(
 		@PathVariable Long playerId,
 		@RequestBody String jsonBody
-	) {
+	) throws Exception {
 		JSONObject json = new JSONObject(jsonBody);
 		log.info("json in controller ---> " + json);
 		
 		Boolean authStatus = sessionService.validateAuth(json);
 		log.info("authStatus ----> " + authStatus);
 		
-		Game game = gameService.playTurn(playerId, json);
-		log.info("game ----> " + game);
-		return new ResponseEntity<Game>(game, HttpStatus.OK);
+		Map models = gameService.playTurn(playerId, json);
+		log.info("models ----> " + models);
+		return new ResponseEntity<Map>(models, HttpStatus.OK);
 	}
 	
 }

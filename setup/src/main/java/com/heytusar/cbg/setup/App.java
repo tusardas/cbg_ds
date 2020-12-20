@@ -18,10 +18,10 @@ import javax.persistence.Persistence;
 import com.heytusar.cbg.core.models.Card;
 import com.heytusar.cbg.core.models.CardAttribute;
 import com.heytusar.cbg.core.models.Player;
+import com.heytusar.cbg.core.models.Role;
 import com.heytusar.cbg.core.models.User;
 import com.heytusar.cbg.core.models.UserRole;
 import com.heytusar.cbg.core.utils.RoleEnum;
-import com.heytusar.cbg.core.models.Role;
 
 /**
  * This program sets up card data and admin user data + two public users for cbg game
@@ -29,7 +29,7 @@ import com.heytusar.cbg.core.models.Role;
 public class App {
 	// Create an EntityManagerFactory when you start the application.
     private static final EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence
-            .createEntityManagerFactory("cbgPersistenceUnit");
+			.createEntityManagerFactory("cbgPersistenceUnit");
     
     public static void main( String[] args ) {
         System.out.println( "Hello World!" );

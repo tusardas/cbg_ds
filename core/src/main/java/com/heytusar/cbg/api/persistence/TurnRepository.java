@@ -6,11 +6,11 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import com.heytusar.cbg.core.models.Game;
-import com.heytusar.cbg.core.models.GamePlayer;
-import com.heytusar.cbg.core.models.Player;
+import com.heytusar.cbg.core.models.Turn;
+
 
 @Repository
 @Transactional
-public interface GameRepository extends CrudRepository<Game, Long>, GameRepositoryCustom {
+public interface TurnRepository extends CrudRepository<Turn, Long>, TurnRepositoryCustom {
 	
 }

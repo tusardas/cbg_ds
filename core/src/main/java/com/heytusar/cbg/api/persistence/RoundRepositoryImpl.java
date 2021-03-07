@@ -42,12 +42,11 @@ private static final Logger log = LoggerFactory.getLogger(RoundRepositoryImpl.cl
 	}
 	
 	public Round saveNewRound(Round round) {
-		entityManager.merge(round);
 		entityManager.persist(round);
 		Long roundId = round.getId();
 		for(Turn turn : round.getTurns()) {
 			turn.setRoundId(roundId);
-			entityManager.merge(turn);
+			entityManager.persist(turn);
 		}
 		return round;
 	}

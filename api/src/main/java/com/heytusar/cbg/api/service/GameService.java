@@ -349,6 +349,14 @@ public class GameService {
 						break;
 					}
 				}
+				if(nextGamePlayer == null) {
+					for(GamePlayer gp : gamePlayers) {
+						if(gp.getSerialNum() == gamePlayer.getSerialNum() - 1) {
+							nextGamePlayer = gp;
+							break;
+						}
+					}
+				}
 				
 				Long nextPlayerId = nextGamePlayer.getPlayer().getId();
 				nextGamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.THINKING.getValue());
@@ -374,6 +382,7 @@ public class GameService {
 		round.setServerPlayerId(winnerGamePlayer.getPlayer().getId());
 		
 		List<GamePlayer> gamePlayers = gameRepository.getGamePlayersByGame(game);
+		log.info("gamePlayers.size() ----------------------------------------------> " + gamePlayers);
 		List<Turn> turns = new ArrayList<Turn>();
 		for(GamePlayer gamePlayer : gamePlayers) {
 			Turn turn = new Turn();
@@ -381,6 +390,7 @@ public class GameService {
 			turn.setIsPlayed(false);
 			turns.add(turn);
 		}
+		log.info("turns.size() ----------------------------------------------> " + turns);
 		round.setTurns(turns);
 		return round;
 	}

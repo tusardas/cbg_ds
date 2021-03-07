@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.heytusar.cbg.api.service.GameService;
 import com.heytusar.cbg.api.service.SessionService;
-import com.heytusar.cbg.core.models.Game;
 
 @Controller
 public class GameController {
@@ -80,4 +79,20 @@ public class GameController {
 		return new ResponseEntity<Map>(models, HttpStatus.OK);
 	}
 	
+	@CrossOrigin
+	@RequestMapping(value="/deleteGame/{playerId}", method = RequestMethod.POST)
+	public ResponseEntity<Map> deleteGame(
+		@PathVariable Long playerId,
+		@RequestBody String jsonBody
+	) throws Exception {
+		JSONObject json = new JSONObject(jsonBody);
+		log.info("json in controller ---> " + json);
+		
+		Boolean authStatus = sessionService.validateAuth(json);
+		log.info("authStatus ----> " + authStatus);
+		
+		Map models = gameService.deleteGame(playerId, json);
+		log.info("models ----> " + models);
+		return new ResponseEntity<Map>(models, HttpStatus.OK);
+	}
 }

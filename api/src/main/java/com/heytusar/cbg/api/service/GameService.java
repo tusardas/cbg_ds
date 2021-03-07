@@ -22,9 +22,9 @@ import org.springframework.web.server.ResponseStatusException;
 import com.heytusar.cbg.api.persistence.CardRepository;
 import com.heytusar.cbg.api.persistence.CardReserveRepository;
 import com.heytusar.cbg.api.persistence.GameRepository;
-import com.heytusar.cbg.api.persistence.PlayedCardRepository;
-import com.heytusar.cbg.api.persistence.PlayerRepository;
 import com.heytusar.cbg.api.persistence.TurnRepository;
+import com.heytusar.cbg.api.persistence.PlayerRepository;
+import com.heytusar.cbg.api.persistence.RoundRepository;
 import com.heytusar.cbg.core.models.Card;
 import com.heytusar.cbg.core.models.CardAttribute;
 import com.heytusar.cbg.core.models.CardReserve;
@@ -32,9 +32,9 @@ import com.heytusar.cbg.core.models.Game;
 import com.heytusar.cbg.core.models.GamePlayer;
 import com.heytusar.cbg.core.models.GameSettings;
 import com.heytusar.cbg.core.models.GameState;
-import com.heytusar.cbg.core.models.PlayedCard;
 import com.heytusar.cbg.core.models.Player;
 import com.heytusar.cbg.core.models.Role;
+import com.heytusar.cbg.core.models.Round;
 import com.heytusar.cbg.core.models.Turn;
 import com.heytusar.cbg.core.models.User;
 import com.heytusar.cbg.core.models.UserRole;
@@ -53,8 +53,8 @@ public class GameService {
 	
 	private GameRepository gameRepository;
 	private CardReserveRepository cardReserveRepository;
-	private PlayedCardRepository playedCardRepository;
 	private TurnRepository turnRepository;
+	private RoundRepository roundRepository;
 	private CardRepository cardRepository;
 	private PlayerRepository playerRepository;
 	
@@ -62,16 +62,16 @@ public class GameService {
 	public GameService(ApplicationContext appContext, 
 			GameRepository gameRepository,
 			CardReserveRepository cardReserveRepository,
-			PlayedCardRepository playedCardRepository,
 			TurnRepository turnRepository,
+			RoundRepository roundRepository,
 			CardRepository cardRepository,
 			PlayerRepository playerRepository
 			) {
 		this.appContext = appContext;
 		this.gameRepository = gameRepository;
 		this.cardReserveRepository = cardReserveRepository;
-		this.playedCardRepository = playedCardRepository;
 		this.turnRepository = turnRepository;
+		this.roundRepository = roundRepository;
 		this.cardRepository = cardRepository;
 		this.playerRepository = playerRepository;
 	}
@@ -86,11 +86,11 @@ public class GameService {
 			);
 		}
 		
-		Turn turn = turnRepository.getCurrentTurn(game);
+		Round round = roundRepository.getCurrentRound(game);
 		
 		Map<String, Object> models = new HashMap<String, Object>();
 		models.put("game", game);
-		models.put("turn", turn);
+		models.put("round", round);
 		return models;
 	}
 
@@ -142,36 +142,36 @@ public class GameService {
 		
 		GameState gameState = new GameState();
 		gameState.setGameStatus(GameStatusEnum.IN_PROGRESS.getValue());
-		gameState.setNextPlayerId(playerId);
-		gameState.setServerPlayerId(playerId);
 		
-		Turn turn = new Turn();
-		turn.setTurnNo(1L);
-		turn.setIsCurrentTurn(true);
-		turn.setIsTurnSettled(false);
-		turn.setNextPlayerId(playerId);
+		Round round = new Round();
+		round.setRoundNum(1L);
+		round.setIsCurrent(true);
+		round.setIsSettled(false);
+		round.setNextPlayerId(playerId);
+		round.setServerPlayerId(playerId);
+		
+		List<Turn> turns = new ArrayList<Turn>();
+		for(GamePlayer gp : gamePlayers) {
+			Turn turn = new Turn();
+			turn.setRoundId(round.getId());
+			turn.setPlayerId(gp.getPlayer().getId());
+			turn.setIsPlayed(false);
+			turns.add(turn);
+		}
+		round.setTurns(turns);
 		
 		Game game = new Game();
 		game.setGameSettings(gameSettings);
 		game.setGameState(gameState);
 		game.setGamePlayers(gamePlayers);
 		
-		Map<String, Object> saveGameResult = gameRepository.saveNewGame(game, turn);
+		Map<String, Object> saveGameResult = gameRepository.saveNewGame(game, round);
 		
 		Game savedGame = (Game) saveGameResult.get("game");
 		
-		for(GamePlayer gp : gamePlayers) {
-			PlayedCard playedCard = new PlayedCard();
-			playedCard.setGameId(savedGame.getId());
-			playedCard.setTurnId(turn.getId());
-			playedCard.setPlayerId(gp.getPlayer().getId());
-			playedCard.setIsPlayed(false);
-			playedCardRepository.save(playedCard);
-		}
-		
 		Map<String, Object> models = new HashMap<String, Object>();
 		models.put("game", saveGameResult.get("game"));
-		models.put("turn", saveGameResult.get("result"));
+		models.put("round", saveGameResult.get("round"));
 		return models;
 	}
 	
@@ -217,10 +217,10 @@ public class GameService {
 		Game game = gameRepository.findById(gameId).orElse(null);
 		log.info("game ----> " + game);
 		
-		Turn turn = turnRepository.getCurrentTurn(game);
+		Round round = roundRepository.getCurrentRound(game);
 		GameState gameState = game.getGameState();
 		GameSettings gameSettings = game.getGameSettings();
-		if(turn.getNextPlayerId() == playerId && gameState.getGameStatus() != 3) {
+		if(round.getNextPlayerId() == playerId && gameState.getGameStatus() != 3) {
 			Long cardReserveId = cardReserveJson.getLong("id");
 			CardReserve	cardReserve	= cardReserveRepository.findById(cardReserveId).orElse(null);
 			Long cardId = cardReserve.getCard().getId();
@@ -229,25 +229,24 @@ public class GameService {
 			GamePlayer gamePlayer = gameRepository.getGamePlayerByGameAndPlayer(game, player);
 			gamePlayer.removeCardReserve(cardReserve);
 			gamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.WAITING.getValue());
-			turn.setPlayedByPlayerId(playerId);
 			
-			PlayedCard playedCard = playedCardRepository.findByGameIdAndTurnIdAndPlayerIdAndIsPlayed(gameId, turn.getId(), playerId, false);
-			playedCard.setCardId(cardId);
-			playedCard.setAttributeKeyPlayed(attributeKey);
-			playedCard.setIsPlayed(true);
-			playedCardRepository.save(playedCard);
+			Turn turn = turnRepository.findByRoundIdAndPlayerIdAndIsPlayed(round.getId(), playerId, false);
+			turn.setCardId(cardId);
+			turn.setAttributeKeyPlayed(attributeKey);
+			turn.setIsPlayed(true);
+			turnRepository.save(turn);
 			
-			List<PlayedCard> playedCards = playedCardRepository.findAllByGameIdAndTurnIdAndIsPlayed(gameId, turn.getId(), true);
+			List<Turn> turns = turnRepository.findAllByRoundIdAndIsPlayed(round.getId(), true);
 			
-			if(playedCards.size() == gameSettings.getNumberOfPlayers()) {
+			if(turns.size() == gameSettings.getNumberOfPlayers()) {
 				//Decision for this Turn
 				List<Map> winnerList = new ArrayList<Map>();
 				Map compareMap = null;
-				for(PlayedCard pc : playedCards) {
+				for(Turn turnTemp : turns) {
 					
-					Card card = cardRepository.findById(pc.getCardId()).orElse(null);
-					Player playerObj = playerRepository.findById(pc.getPlayerId()).orElse(null);
-					CardAttribute ca = card.getCardAttribute(pc.getAttributeKeyPlayed());
+					Card card = cardRepository.findById(turnTemp.getCardId()).orElse(null);
+					Player playerObj = playerRepository.findById(turnTemp.getPlayerId()).orElse(null);
+					CardAttribute ca = card.getCardAttribute(turnTemp.getAttributeKeyPlayed());
 					Double value = Double.parseDouble(ca.getAttributeValue());
 					log.info("value -----------------------------> " + value);
 					
@@ -288,10 +287,10 @@ public class GameService {
 				log.info("winnerCard -------> " + winnerCard);
 				
 				GamePlayer winnerGamePlayer = gameRepository.getGamePlayerByGameAndPlayer(game, winnerPlayer);
-				List <PlayedCard> allPlayedCardsInTurn = playedCards;
-				for(PlayedCard playedCardInTurn : allPlayedCardsInTurn) {
+				List <Turn> allTurnsInRound = turns;
+				for(Turn playedTurnInRound : allTurnsInRound) {
 					CardReserve wonCardReserve;
-					Card cardWon = cardRepository.findById(playedCardInTurn.getCardId()).orElse(null);
+					Card cardWon = cardRepository.findById(playedTurnInRound.getCardId()).orElse(null);
 					if(cardWon.getId() != cardReserve.getCard().getId()) {
 						wonCardReserve = new CardReserve();
 						wonCardReserve.setCard(cardWon);
@@ -306,18 +305,14 @@ public class GameService {
 					winnerGamePlayer.addCardReserve(wonCardReserve);
 				}
 				
-				gameState.setNextPlayerId(winnerPlayer.getId());
-				gameState.setServerPlayerId(winnerPlayer.getId());
+				round.setNextPlayerId(null);
+				round.setIsSettled(true);
+				round.setIsCurrent(false);
 				
-				turn.setPlayedByPlayerId(playerId);
-				turn.setNextPlayerId(null);
-				turn.setIsTurnSettled(true);
-				turn.setIsCurrentTurn(false);
-				Turn newTurn = null;
 				
 				Map<String, Object> models = new HashMap<String, Object>();
 				models.put("game", game);
-				models.put("turn", turn);
+				models.put("round", round);
 				
 				Integer brokePlayersCount = determineBroke(game);
 				if((brokePlayersCount + 1) == gameSettings.getNumberOfPlayers()) {
@@ -325,9 +320,9 @@ public class GameService {
 					log.info("game has ended ----------------------------->");
 				}
 				else {
-					newTurn = initNewTurn(game, winnerGamePlayer, turn);
-					turnRepository.save(newTurn);
-					models.put("turn", newTurn);
+					Round newRound = initNewRound(game, winnerGamePlayer, round);
+					roundRepository.saveNewRound(newRound);
+					models.put("round", newRound);
 					log.info("new turn initiated ----------------------------->");
 				}
 				winnerGamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.THINKING.getValue());
@@ -346,38 +341,37 @@ public class GameService {
 				
 				Long nextPlayerId = nextGamePlayer.getPlayer().getId();
 				nextGamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.THINKING.getValue());
-				gameState.setNextPlayerId(nextPlayerId);
-				turn.setNextPlayerId(nextPlayerId);
-				turn.setPlayedByPlayerId(playerId);
+				round.setNextPlayerId(nextPlayerId);
 			}
-			turnRepository.save(turn);
+			roundRepository.save(round);
 			gameRepository.save(game);
 		}
 		
 		Map<String, Object> models = new HashMap<String, Object>();
 		models.put("game", game);
-		models.put("turn", turn);
+		models.put("round", round);
 		return models;
 	}
 
-	private Turn initNewTurn(Game game, GamePlayer winnerGamePlayer, Turn currentTurn) {
-		Turn turn = new Turn();
-		turn.setGameId(game.getId());
-		turn.setTurnNo(currentTurn.getTurnNo()+1);
-		turn.setIsCurrentTurn(true);
-		turn.setIsTurnSettled(false);
-		turn.setNextPlayerId(winnerGamePlayer.getPlayer().getId());
+	private Round initNewRound(Game game, GamePlayer winnerGamePlayer, Round currentRound) {
+		Round round = new Round();
+		round.setGameId(game.getId());
+		round.setRoundNum(currentRound.getRoundNum()+1);
+		round.setIsCurrent(true);
+		round.setIsSettled(false);
+		round.setNextPlayerId(winnerGamePlayer.getPlayer().getId());
+		round.setServerPlayerId(winnerGamePlayer.getPlayer().getId());
 		
 		List<GamePlayer> gamePlayers = gameRepository.getGamePlayersByGame(game);
+		List<Turn> turns = new ArrayList<Turn>();
 		for(GamePlayer gamePlayer : gamePlayers) {
-			PlayedCard playedCard = new PlayedCard();
-			playedCard.setGameId(game.getId());
-			playedCard.setTurnId(turn.getId());
-			playedCard.setPlayerId(gamePlayer.getPlayer().getId());
-			playedCard.setIsPlayed(false);
-			playedCardRepository.save(playedCard);
+			Turn turn = new Turn();
+			turn.setPlayerId(gamePlayer.getPlayer().getId());
+			turn.setIsPlayed(false);
+			turns.add(turn);
 		}
-		return turn;
+		round.setTurns(turns);
+		return round;
 	}
 
 	private Integer determineBroke(Game game) {
@@ -399,5 +393,17 @@ public class GameService {
 			}
 		}
 		return reallyBrokePlayersCount;
+	}
+	
+	public  Map<String, Object> deleteGame(Long playerId, JSONObject json) {
+		log.info("json ----> " + json);
+		Long gameId = json.getLong("gameId");
+		gameRepository.deleteById(gameId);
+		gameRepository.deleteGameRelationsByGameId(gameId);
+		
+		Map<String, Object> models = new HashMap<String, Object>();
+		models.put("game", null);
+		models.put("round", null);
+		return models;
 	}
 }

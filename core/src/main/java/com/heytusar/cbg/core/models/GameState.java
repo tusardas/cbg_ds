@@ -12,8 +12,6 @@ public class GameState {
 	private Long id;
 	
 	private Integer gameStatus; // 1 = in progress, 2 = paused, 3 = finished, see GameStatusEnum.java
-	private Long nextPlayerId;
-	private Long serverPlayerId;
     
 	private Long gameId;
 
@@ -31,22 +29,6 @@ public class GameState {
 
 	public void setGameStatus(Integer gameStatus) {
 		this.gameStatus = gameStatus;
-	}
-
-	public Long getNextPlayerId() {
-		return nextPlayerId;
-	}
-
-	public void setNextPlayerId(Long nextPlayerId) {
-		this.nextPlayerId = nextPlayerId;
-	}
-
-	public Long getServerPlayerId() {
-		return serverPlayerId;
-	}
-
-	public void setServerPlayerId(Long serverPlayerId) {
-		this.serverPlayerId = serverPlayerId;
 	}
 
 	public Long getGameId() {

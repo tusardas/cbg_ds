@@ -23,6 +23,7 @@ import com.heytusar.cbg.core.models.GamePlayer;
 import com.heytusar.cbg.core.models.GameSettings;
 import com.heytusar.cbg.core.models.GameState;
 import com.heytusar.cbg.core.models.Player;
+import com.heytusar.cbg.core.models.Round;
 import com.heytusar.cbg.core.models.Turn;
 
 @Repository
@@ -38,7 +39,7 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 	private DataSource dataSource;
 	
 	@Override
-	public Map<String, Object> saveNewGame(Game game, Turn turn) {
+	public Map<String, Object> saveNewGame(Game game, Round round) {
 		
 		List<GamePlayer> gamePlayers = game.getGamePlayers();
 		GameSettings gameSettings = game.getGameSettings();
@@ -47,7 +48,7 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 		entityManager.persist(gameSettings);
 		entityManager.persist(gameState);
 		entityManager.persist(game);
-		entityManager.persist(turn);
+		entityManager.persist(round);
 		
 		Long gameId = game.getId();
 		
@@ -69,12 +70,16 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 		}
 		
 		
-		turn.setGameId(gameId);
-		entityManager.merge(turn);
+		round.setGameId(gameId);
+		entityManager.merge(round);
+		for(Turn turn : round.getTurns()) {
+			turn.setRoundId(round.getId());
+			entityManager.merge(turn);
+		}
 		
 		Map<String, Object> models = new HashMap<String, Object>();
 		models.put("game", game);
-		models.put("turn", turn);
+		models.put("round", round);
 		
 		return models;
 	}
@@ -161,7 +166,37 @@ public class GameRepositoryImpl implements GameRepositoryCustom {
 				.getResultList();
 		return gamePlayers;
 	}
-
+	
+	public void deleteGameRelationsByGameId(Long gameId) {
+		
+		List<GameSettings> gameSettings = entityManager.createQuery("SELECT gameSettings FROM GameSettings gameSettings WHERE gameSettings.gameId = :gameId", GameSettings.class)
+				.setParameter("gameId", gameId)
+				.getResultList();
+		if(gameSettings.size() > 0) {
+			entityManager.remove(gameSettings.get(0));
+		}
+		
+		List<GameState> gameStates = entityManager.createQuery("SELECT gameState FROM GameState gameState WHERE gameState.gameId = :gameId", GameState.class)
+				.setParameter("gameId", gameId)
+				.getResultList();
+		if(gameStates.size() > 0) {
+			entityManager.remove(gameStates.get(0));
+		}
+		
+		List<Round> rounds = entityManager.createQuery("SELECT r FROM Round r WHERE r.gameId = :gameId", Round.class)
+				.setParameter("gameId", gameId)
+				.getResultList();
+		for(Round round : rounds) {
+			List<Turn> turns = entityManager.createQuery("SELECT t FROM Turn t WHERE t.roundId = :roundId", Turn.class)
+					.setParameter("roundId", round.getId())
+					.getResultList();
+			for(Turn turn : turns) {
+				entityManager.remove(turn);
+			}
+			entityManager.remove(round);
+		}
+	}
+	
 	/*
 	public Game getIncompleteGameByPlayer(Long playerId) {
 		Game game = null;

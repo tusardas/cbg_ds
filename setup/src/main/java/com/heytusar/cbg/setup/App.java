@@ -86,7 +86,7 @@ public class App {
 	public static List<Map<String, String>> readCsv() {
     	List<Map<String, String>> cardMaplist = new ArrayList<Map<String, String>>();
     	List<String> attributeList = new ArrayList<String>();
-        String csvFile = "D:\\cbg_workspace\\cbg\\core\\src\\main\\resources\\Cards.csv";
+        String csvFile = "F:\\installation\\workspace\\cbg_ds\\core\\src\\main\\resources\\Cards.csv";
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ",";

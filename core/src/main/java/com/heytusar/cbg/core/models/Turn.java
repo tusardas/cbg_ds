@@ -8,67 +8,58 @@ import javax.persistence.Id;
 
 @Entity
 public class Turn {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	public void setId(Long id) {
-		this.id = id;
+	private Long playerId;
+	
+	@Column(nullable = true)
+	private Long cardId;
+	@Column(nullable = true)
+	private String attributeKeyPlayed;
+	
+    private Long roundId;
+    
+    @Column(columnDefinition = "TINYINT", length = 1)
+	private Boolean isPlayed;
+    
+	public Boolean getIsPlayed() {
+		return isPlayed;
+	}
+	public void setIsPlayed(Boolean isPlayed) {
+		this.isPlayed = isPlayed;
+	}
+	public Long getRoundId() {
+		return roundId;
+	}
+	public void setRoundId(Long roundId) {
+		this.roundId = roundId;
 	}
 	public Long getId() {
 		return id;
 	}
-	
-	private Long gameId;
-	private Long turnNo;
-	
-	@Column(columnDefinition = "TINYINT", length = 1)
-	private Boolean isCurrentTurn;
-	
-	@Column(columnDefinition = "TINYINT", length = 1)
-	private Boolean isTurnSettled;
-	
-	@Column(nullable = true)
-	private Long playedByPlayerId;
-	
-	@Column(nullable = true)
-	private Long nextPlayerId;
-	
-	public Boolean getIsTurnSettled() {
-		return isTurnSettled;
+	public void setId(Long id) {
+		this.id = id;
 	}
-	public void setIsTurnSettled(Boolean isTurnSettled) {
-		this.isTurnSettled = isTurnSettled;
+	public Long getPlayerId() {
+		return playerId;
 	}
-
-	public Long getGameId() {
-		return gameId;
+	public void setPlayerId(Long playerId) {
+		this.playerId = playerId;
 	}
-	public void setGameId(Long gameId) {
-		this.gameId = gameId;
+	public Long getCardId() {
+		return cardId;
 	}
-	public Long getTurnNo() {
-		return turnNo;
+	public void setCardId(Long cardId) {
+		this.cardId = cardId;
 	}
-	public void setTurnNo(Long turnNo) {
-		this.turnNo = turnNo;
+	public String getAttributeKeyPlayed() {
+		return attributeKeyPlayed;
 	}
-	public Boolean getIsCurrentTurn() {
-		return isCurrentTurn;
+	public void setAttributeKeyPlayed(String attributeKeyPlayed) {
+		this.attributeKeyPlayed = attributeKeyPlayed;
 	}
-	public void setIsCurrentTurn(Boolean isCurrentTurn) {
-		this.isCurrentTurn = isCurrentTurn;
-	}
-	public Long getPlayedByPlayerId() {
-		return playedByPlayerId;
-	}
-	public void setPlayedByPlayerId(Long playedByPlayerId) {
-		this.playedByPlayerId = playedByPlayerId;
-	}
-	public Long getNextPlayerId() {
-		return nextPlayerId;
-	}
-	public void setNextPlayerId(Long nextPlayerId) {
-		this.nextPlayerId = nextPlayerId;
-	}
+    
 }

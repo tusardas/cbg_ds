@@ -204,7 +204,8 @@ public class GameService {
 	}
 
 	public Map<String, Object> playTurn(Long playerId, JSONObject json) throws Exception {
-		Player player = appContext.getBean(PlayerService.class).getPlayerById(playerId);
+		PlayerService playerService = appContext.getBean(PlayerService.class);
+		Player player = playerService.getPlayerById(playerId);
 		log.info("player ----> " + player);
 		log.info("json ----> " + json);
 		JSONObject cardReserveJson = json.getJSONObject("cardReserve");
@@ -227,7 +228,9 @@ public class GameService {
 			log.info("cardReserve ------> " + cardReserve);
 					
 			GamePlayer gamePlayer = gameRepository.getGamePlayerByGameAndPlayer(game, player);
-			gamePlayer.removeCardReserve(cardReserve);
+			cardReserve.setReserveType(ReserveTypeEnum.UNUSEABLE.getValue());
+			cardReserveRepository.save(cardReserve);
+			
 			gamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.WAITING.getValue());
 			
 			Turn turn = turnRepository.findByRoundIdAndPlayerIdAndIsPlayed(round.getId(), playerId, false);
@@ -289,20 +292,28 @@ public class GameService {
 				GamePlayer winnerGamePlayer = gameRepository.getGamePlayerByGameAndPlayer(game, winnerPlayer);
 				List <Turn> allTurnsInRound = turns;
 				for(Turn playedTurnInRound : allTurnsInRound) {
-					CardReserve wonCardReserve;
 					Card cardWon = cardRepository.findById(playedTurnInRound.getCardId()).orElse(null);
-					if(cardWon.getId() != cardReserve.getCard().getId()) {
-						wonCardReserve = new CardReserve();
-						wonCardReserve.setCard(cardWon);
-						wonCardReserve.setGameId(winnerGamePlayer.getGameId());
+					CardReserve wonCardReserve = cardReserveRepository.findByCardIdAndGameId(playedTurnInRound.getCardId(), game.getId());
+					if(wonCardReserve.getPlayerId() != winnerPlayer.getId()) {
+						//this CardReserve was earlier belong to someone else
 						
+						Player loosingPlayer = playerService.getPlayerById(wonCardReserve.getPlayerId());
+						GamePlayer loosingGamePlayer = gameRepository.getGamePlayerByGameAndPlayer(game, loosingPlayer);
+						loosingGamePlayer.removeCardReserve(wonCardReserve);
+						cardReserveRepository.delete(wonCardReserve);
+						
+						CardReserve newwonCardReserve = new CardReserve();
+						newwonCardReserve.setCard(cardWon);
+						newwonCardReserve.setGameId(winnerGamePlayer.getGameId());
+						newwonCardReserve.setPlayerId(winnerPlayer.getId());
+						newwonCardReserve.setReserveType(ReserveTypeEnum.WINNING_RESERVE.getValue());
+						winnerGamePlayer.addCardReserve(newwonCardReserve);
 					}
 					else {
-						wonCardReserve = cardReserve;
+						//this CardReserve was earlier belong to winning player only
+						wonCardReserve.setReserveType(ReserveTypeEnum.WINNING_RESERVE.getValue());
 					}
-					wonCardReserve.setPlayerId(winnerPlayer.getId());
-					wonCardReserve.setReserveType(ReserveTypeEnum.WINNING_RESERVE.getValue());
-					winnerGamePlayer.addCardReserve(wonCardReserve);
+					
 				}
 				
 				round.setNextPlayerId(null);

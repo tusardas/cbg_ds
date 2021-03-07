@@ -1,7 +1,7 @@
 package com.heytusar.cbg.core.utils;
 
 public enum ReserveTypeEnum {
-	USEABLE(1), WINNING_RESERVE(2);
+	USEABLE(1), WINNING_RESERVE(2), UNUSEABLE(3);
 	
 	private final Integer value;
 	

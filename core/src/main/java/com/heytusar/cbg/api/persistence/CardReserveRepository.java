@@ -11,7 +11,7 @@ import com.heytusar.cbg.core.models.CardReserve;
 
 @Repository
 @Transactional
-public interface CardReserveRepository extends CrudRepository<CardReserve, Long>{
+public interface CardReserveRepository extends CrudRepository<CardReserve, Long>, CardReserveRepositoryCustom{
 	
 	List<CardReserve> findAllByGameIdAndPlayerIdAndReserveType(Long gameId, Long playerId, Integer reserveType);
 }

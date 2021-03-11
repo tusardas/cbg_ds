@@ -29,6 +29,9 @@ public class Game {
 	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)
 	private List<GamePlayer> gamePlayers;
 	
+	private Long createdByPlayerId;
+	private Long winnerPlayerId;
+	
 	public Long getId() {
 		return id;
 	}
@@ -59,6 +62,22 @@ public class Game {
 
 	public void setGamePlayers(List<GamePlayer> gamePlayers) {
 		this.gamePlayers = gamePlayers;
+	}
+
+	public Long getCreatedByPlayerId() {
+		return createdByPlayerId;
+	}
+
+	public void setCreatedByPlayerId(Long createdByPlayerId) {
+		this.createdByPlayerId = createdByPlayerId;
+	}
+
+	public Long getWinnerPlayerId() {
+		return winnerPlayerId;
+	}
+
+	public void setWinnerPlayerId(Long winnerPlayerId) {
+		this.winnerPlayerId = winnerPlayerId;
 	}
 	
 }

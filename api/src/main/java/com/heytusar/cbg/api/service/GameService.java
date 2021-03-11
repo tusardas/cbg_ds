@@ -164,6 +164,7 @@ public class GameService {
 		game.setGameSettings(gameSettings);
 		game.setGameState(gameState);
 		game.setGamePlayers(gamePlayers);
+		game.setCreatedByPlayerId(playerId);
 		
 		Map<String, Object> saveGameResult = gameRepository.saveNewGame(game, round);
 		
@@ -222,145 +223,153 @@ public class GameService {
 		GameState gameState = game.getGameState();
 		GameSettings gameSettings = game.getGameSettings();
 		if(round.getNextPlayerId() == playerId && gameState.getGameStatus() != 3) {
-			Long cardReserveId = cardReserveJson.getLong("id");
-			CardReserve	cardReserve	= cardReserveRepository.findById(cardReserveId).orElse(null);
-			Long cardId = cardReserve.getCard().getId();
-			log.info("cardReserve ------> " + cardReserve);
-					
-			GamePlayer gamePlayer = gameRepository.getGamePlayerByGameAndPlayer(game, player);
-			cardReserve.setReserveType(ReserveTypeEnum.UNUSEABLE.getValue());
-			cardReserveRepository.save(cardReserve);
-			
-			gamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.WAITING.getValue());
-			
-			Turn turn = turnRepository.findByRoundIdAndPlayerIdAndIsPlayed(round.getId(), playerId, false);
-			turn.setCardId(cardId);
-			turn.setAttributeKeyPlayed(attributeKey);
-			turn.setIsPlayed(true);
-			turnRepository.save(turn);
-			
-			List<Turn> turns = turnRepository.findAllByRoundIdAndIsPlayed(round.getId(), true);
-			
-			if(turns.size() == gameSettings.getNumberOfPlayers()) {
-				//Decision for this Turn
-				List<Map> winnerList = new ArrayList<Map>();
-				Map compareMap = null;
-				for(Turn turnTemp : turns) {
-					
-					Card card = cardRepository.findById(turnTemp.getCardId()).orElse(null);
-					Player playerObj = playerRepository.findById(turnTemp.getPlayerId()).orElse(null);
-					CardAttribute ca = card.getCardAttribute(turnTemp.getAttributeKeyPlayed());
-					Double value = Double.parseDouble(ca.getAttributeValue());
-					log.info("value -----------------------------> " + value);
-					
-					compareMap = new HashMap<Object, Object>();
-					compareMap.put("player", playerObj);
-					compareMap.put("card", card);
-					compareMap.put("value", value);
-					log.info("compareMap -----------------------------> " +compareMap);
-					
-					winnerList.add(compareMap);
-				}
-				int size = winnerList.size();
-				int i = 0, j = 0;
-				for(i = 0; i < size-1; i++) {
-					for(j = 1; j < size; j++) {
-						Map compareMapI = winnerList.get(i);
-						Double valueI = (Double) compareMapI.get("value");
+			if(round.getAttributeKey() == null) {
+				round.setAttributeKey(attributeKey);
+			}
+			log.info("attributeKey --------------------> " + attributeKey);
+			log.info("round.getAttributeKey() --------------------> " + round.getAttributeKey());
+			if(round.getAttributeKey().equals(attributeKey)) {
+				Long cardReserveId = cardReserveJson.getLong("id");
+				CardReserve	cardReserve	= cardReserveRepository.findById(cardReserveId).orElse(null);
+				Long cardId = cardReserve.getCard().getId();
+				log.info("cardReserve ------> " + cardReserve);
 						
-						Map compareMapJ = winnerList.get(j);
-						Double valueJ = (Double) compareMapJ.get("value");
+				GamePlayer gamePlayer = gameRepository.getGamePlayerByGameAndPlayer(game, player);
+				cardReserve.setReserveType(ReserveTypeEnum.UNUSEABLE.getValue());
+				cardReserveRepository.save(cardReserve);
+				
+				gamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.WAITING.getValue());
+				
+				Turn turn = turnRepository.findByRoundIdAndPlayerIdAndIsPlayed(round.getId(), playerId, false);
+				turn.setCardId(cardId);
+				turn.setAttributeKeyPlayed(attributeKey);
+				turn.setIsPlayed(true);
+				turnRepository.save(turn);
+				
+				List<Turn> turns = turnRepository.findAllByRoundIdAndIsPlayed(round.getId(), true);
+				
+				if(turns.size() == gameSettings.getNumberOfPlayers()) {
+					//Decision for this Turn
+					List<Map> winnerList = new ArrayList<Map>();
+					Map compareMap = null;
+					for(Turn turnTemp : turns) {
 						
-						log.info("valueI ----------------------------> " + valueI);
-						log.info("valueJ ----------------------------> " + valueJ);
+						Card card = cardRepository.findById(turnTemp.getCardId()).orElse(null);
+						Player playerObj = playerRepository.findById(turnTemp.getPlayerId()).orElse(null);
+						CardAttribute ca = card.getCardAttribute(turnTemp.getAttributeKeyPlayed());
+						Double value = Double.parseDouble(ca.getAttributeValue());
+						log.info("value -----------------------------> " + value);
 						
-						if(valueI > valueJ) {
-							winnerList.set(i, compareMapJ);
-							winnerList.set(j, compareMapI);
+						compareMap = new HashMap<Object, Object>();
+						compareMap.put("player", playerObj);
+						compareMap.put("card", card);
+						compareMap.put("value", value);
+						log.info("compareMap -----------------------------> " +compareMap);
+						
+						winnerList.add(compareMap);
+					}
+					int size = winnerList.size();
+					int i = 0, j = 0;
+					for(i = 0; i < size-1; i++) {
+						for(j = 1; j < size; j++) {
+							Map compareMapI = winnerList.get(i);
+							Double valueI = (Double) compareMapI.get("value");
+							
+							Map compareMapJ = winnerList.get(j);
+							Double valueJ = (Double) compareMapJ.get("value");
+							
+							log.info("valueI ----------------------------> " + valueI);
+							log.info("valueJ ----------------------------> " + valueJ);
+							
+							if(valueI > valueJ) {
+								winnerList.set(i, compareMapJ);
+								winnerList.set(j, compareMapI);
+							}
 						}
 					}
-				}
-				
-				Map winnerMap = winnerList.get(size-1);
-				Player winnerPlayer = (Player) winnerMap.get("player");
-				Card winnerCard = (Card) winnerMap.get("card");
-				
-				log.info("winnerMap -------> " + winnerMap);
-				log.info("winnerPlayer -------> " + winnerPlayer);
-				log.info("winnerCard -------> " + winnerCard);
-				
-				GamePlayer winnerGamePlayer = gameRepository.getGamePlayerByGameAndPlayer(game, winnerPlayer);
-				List <Turn> allTurnsInRound = turns;
-				for(Turn playedTurnInRound : allTurnsInRound) {
-					Card cardWon = cardRepository.findById(playedTurnInRound.getCardId()).orElse(null);
-					CardReserve wonCardReserve = cardReserveRepository.findByCardIdAndGameId(playedTurnInRound.getCardId(), game.getId());
-					if(wonCardReserve.getPlayerId() != winnerPlayer.getId()) {
-						//this CardReserve was earlier belong to someone else
+					
+					Map winnerMap = winnerList.get(size-1);
+					Player winnerPlayer = (Player) winnerMap.get("player");
+					Card winnerCard = (Card) winnerMap.get("card");
+					
+					log.info("winnerMap -------> " + winnerMap);
+					log.info("winnerPlayer -------> " + winnerPlayer);
+					log.info("winnerCard -------> " + winnerCard);
+					
+					GamePlayer winnerGamePlayer = gameRepository.getGamePlayerByGameAndPlayer(game, winnerPlayer);
+					List <Turn> allTurnsInRound = turns;
+					for(Turn playedTurnInRound : allTurnsInRound) {
+						Card cardWon = cardRepository.findById(playedTurnInRound.getCardId()).orElse(null);
+						CardReserve wonCardReserve = cardReserveRepository.findByCardIdAndGameId(playedTurnInRound.getCardId(), game.getId());
+						if(wonCardReserve.getPlayerId() != winnerPlayer.getId()) {
+							//this CardReserve was earlier belong to someone else
+							
+							Player loosingPlayer = playerService.getPlayerById(wonCardReserve.getPlayerId());
+							GamePlayer loosingGamePlayer = gameRepository.getGamePlayerByGameAndPlayer(game, loosingPlayer);
+							loosingGamePlayer.removeCardReserve(wonCardReserve);
+							cardReserveRepository.delete(wonCardReserve);
+							
+							CardReserve newwonCardReserve = new CardReserve();
+							newwonCardReserve.setCard(cardWon);
+							newwonCardReserve.setGameId(winnerGamePlayer.getGameId());
+							newwonCardReserve.setPlayerId(winnerPlayer.getId());
+							newwonCardReserve.setReserveType(ReserveTypeEnum.WINNING_RESERVE.getValue());
+							winnerGamePlayer.addCardReserve(newwonCardReserve);
+						}
+						else {
+							//this CardReserve was earlier belong to winning player only
+							wonCardReserve.setReserveType(ReserveTypeEnum.WINNING_RESERVE.getValue());
+						}
 						
-						Player loosingPlayer = playerService.getPlayerById(wonCardReserve.getPlayerId());
-						GamePlayer loosingGamePlayer = gameRepository.getGamePlayerByGameAndPlayer(game, loosingPlayer);
-						loosingGamePlayer.removeCardReserve(wonCardReserve);
-						cardReserveRepository.delete(wonCardReserve);
-						
-						CardReserve newwonCardReserve = new CardReserve();
-						newwonCardReserve.setCard(cardWon);
-						newwonCardReserve.setGameId(winnerGamePlayer.getGameId());
-						newwonCardReserve.setPlayerId(winnerPlayer.getId());
-						newwonCardReserve.setReserveType(ReserveTypeEnum.WINNING_RESERVE.getValue());
-						winnerGamePlayer.addCardReserve(newwonCardReserve);
-					}
-					else {
-						//this CardReserve was earlier belong to winning player only
-						wonCardReserve.setReserveType(ReserveTypeEnum.WINNING_RESERVE.getValue());
 					}
 					
-				}
-				
-				round.setNextPlayerId(null);
-				round.setIsSettled(true);
-				round.setIsCurrent(false);
-				
-				
-				Map<String, Object> models = new HashMap<String, Object>();
-				models.put("game", game);
-				models.put("round", round);
-				
-				Integer brokePlayersCount = determineBroke(game);
-				if((brokePlayersCount + 1) == gameSettings.getNumberOfPlayers()) {
-					gameState.setGameStatus(GameStatusEnum.FINISHED.getValue());
-					log.info("game has ended ----------------------------->");
+					round.setNextPlayerId(null);
+					round.setIsSettled(true);
+					round.setIsCurrent(false);
+					
+					
+					Map<String, Object> models = new HashMap<String, Object>();
+					models.put("game", game);
+					models.put("round", round);
+					
+					Integer brokePlayersCount = determineBroke(game);
+					if((brokePlayersCount + 1) == gameSettings.getNumberOfPlayers()) {
+						gameState.setGameStatus(GameStatusEnum.FINISHED.getValue());
+						game.setWinnerPlayerId(winnerPlayer.getId());
+						log.info("game has ended ----------------------------->");
+					}
+					else {
+						Round newRound = initNewRound(game, winnerGamePlayer, round);
+						roundRepository.saveNewRound(newRound);
+						models.put("round", newRound);
+						log.info("new turn initiated ----------------------------->");
+					}
+					winnerGamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.THINKING.getValue());
+					return models;
 				}
 				else {
-					Round newRound = initNewRound(game, winnerGamePlayer, round);
-					roundRepository.saveNewRound(newRound);
-					models.put("round", newRound);
-					log.info("new turn initiated ----------------------------->");
-				}
-				winnerGamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.THINKING.getValue());
-				return models;
-			}
-			else {
-				//Other player's turn is pending
-				GamePlayer nextGamePlayer = null;
-				List<GamePlayer> gamePlayers = game.getGamePlayers();
-				for(GamePlayer gp : gamePlayers) {
-					if(gp.getSerialNum() == gamePlayer.getSerialNum() + 1) {
-						nextGamePlayer = gp;
-						break;
-					}
-				}
-				if(nextGamePlayer == null) {
+					//Other player's turn is pending
+					GamePlayer nextGamePlayer = null;
+					List<GamePlayer> gamePlayers = game.getGamePlayers();
 					for(GamePlayer gp : gamePlayers) {
-						if(gp.getSerialNum() == gamePlayer.getSerialNum() - 1) {
+						if(gp.getSerialNum() == gamePlayer.getSerialNum() + 1) {
 							nextGamePlayer = gp;
 							break;
 						}
 					}
+					if(nextGamePlayer == null) {
+						for(GamePlayer gp : gamePlayers) {
+							if(gp.getSerialNum() == gamePlayer.getSerialNum() - 1) {
+								nextGamePlayer = gp;
+								break;
+							}
+						}
+					}
+					
+					Long nextPlayerId = nextGamePlayer.getPlayer().getId();
+					nextGamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.THINKING.getValue());
+					round.setNextPlayerId(nextPlayerId);
 				}
-				
-				Long nextPlayerId = nextGamePlayer.getPlayer().getId();
-				nextGamePlayer.setGamePlayerStatus(GamePlayerStatusEnum.THINKING.getValue());
-				round.setNextPlayerId(nextPlayerId);
 			}
 			roundRepository.save(round);
 			gameRepository.save(game);

@@ -11,10 +11,19 @@
         <!-- Entity classes -->
         <class>com.heytusar.cbg.core.models.Card</class>
         <class>com.heytusar.cbg.core.models.CardAttribute</class>
-        <class>com.heytusar.cbg.core.models.User</class>
+        <class>com.heytusar.cbg.core.models.CardReserve</class>
+        <class>com.heytusar.cbg.core.models.Game</class>
+        <class>com.heytusar.cbg.core.models.GamePlayer</class>
+        <class>com.heytusar.cbg.core.models.GameState</class>
+        <class>com.heytusar.cbg.core.models.GameSettings</class>
         <class>com.heytusar.cbg.core.models.Player</class>
         <class>com.heytusar.cbg.core.models.Role</class>
+        <class>com.heytusar.cbg.core.models.Round</class>
+        <class>com.heytusar.cbg.core.models.Turn</class>
+        <class>com.heytusar.cbg.core.models.User</class>
         <class>com.heytusar.cbg.core.models.UserRole</class>
+        <class>com.heytusar.cbg.core.models.UserSession</class>
+        
         <properties>
             <!-- The JDBC driver of your database -->
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />

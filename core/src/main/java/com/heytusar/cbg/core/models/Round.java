@@ -27,6 +27,9 @@ public class Round {
 	private Long gameId;
 	private Long roundNum;
 	
+	@Column(nullable = true)
+	private String attributeKey;
+	
 	@Column(columnDefinition = "TINYINT", length = 1)
 	private Boolean isCurrent;
 	
@@ -62,7 +65,7 @@ public class Round {
 	public void setRoundNum(Long roundNum) {
 		this.roundNum = roundNum;
 	}
-	public Boolean getIsCurrentTurn() {
+	public Boolean getIsCurrent() {
 		return isCurrent;
 	}
 	public void setIsCurrent(Boolean isCurrent) {
@@ -86,4 +89,11 @@ public class Round {
 	public void setServerPlayerId(Long serverPlayerId) {
 		this.serverPlayerId = serverPlayerId;
 	}
+	public String getAttributeKey() {
+		return attributeKey;
+	}
+	public void setAttributeKey(String attributeKey) {
+		this.attributeKey = attributeKey;
+	}
+	
 }
